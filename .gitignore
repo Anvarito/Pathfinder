@@ -73,3 +73,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /Новая папка
 .idea/.idea.WADAWD/.idea/indexLayout.xml
+.idea/.idea.PathFinding/.idea/indexLayout.xml
