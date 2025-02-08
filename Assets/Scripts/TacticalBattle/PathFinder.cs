@@ -114,7 +114,6 @@ namespace TacticalBattle
             // Направление к следующей клетке
             Vector3 directionToNeighbor = neighbor.GridPosition - currentNode.GridPosition;
             float targetRotation = Mathf.Atan2(directionToNeighbor.x, directionToNeighbor.z) * Mathf.Rad2Deg;
-            print(targetRotation);
 
             // Разница углов
             float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentRotation, targetRotation));

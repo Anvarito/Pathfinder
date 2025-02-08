@@ -2353,15 +2353,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _marker: {fileID: 2429589824038548657}
-  _actionParams:
-    moveParams:
-      StepCost: 4
-      RotationCost: 1
-    ActionPoints: 40
   _PathDrawer: {fileID: 7995628184936128910}
   unitMover: {fileID: 5704208015905504469}
   UnitRotator: {fileID: 8679286411361341754}
-  _staepForSeconds: 0.1
+  _staepForSeconds: 0
 --- !u!114 &5704208015905504469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2374,7 +2369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 325731699b8d4780b988528f373921a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveTime: 0.2
 --- !u!114 &7995628184936128910
 MonoBehaviour:
   m_ObjectHideFlags: 0

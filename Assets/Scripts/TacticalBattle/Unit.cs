@@ -96,7 +96,7 @@ namespace TacticalBattle
 
         private IEnumerator AwaitAfterRotation()
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(_staepForSeconds);
             UnitRotator.RotateToNext(_targetNode);
         }
 
