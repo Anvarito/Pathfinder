@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
+using Data.Scripts;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace TacticalBattle
@@ -12,6 +13,9 @@ namespace TacticalBattle
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private PathFinder pathFinder;
 
+        public event Action OnSpawnEnd;
+        public List<Unit> Units { get; private set; } = new List<Unit>();
+
         private void OnEnable()
         {
             _gridManager.OnCreateGrid += GridManagerOnOnCreateGrid;
@@ -19,26 +23,39 @@ namespace TacticalBattle
 
         private void GridManagerOnOnCreateGrid()
         {
-            for(int i = 0; i < _moverCount; i ++)
+            for (int i = 0; i < _moverCount; i++)
             {
                 Unit unit = Instantiate(_pathMoverPrefab, transform);
-                var node = GetRandomValue();
-                unit.Init(pathFinder, node);
-                node.UnitCurrent = unit;
+                var initialMode = GetRandomValue();
+                UnitStats unitStats = new UnitStats(40, 100);
+                unit.Init(pathFinder, initialMode, unitStats);
+                initialMode.UnitCurrent = unit;
                 unit.name += i;
-                unit.transform.position = node.GridPosition;
+                unit.transform.position = initialMode.GridPosition;
+                Units.Add(unit);
             }
+            
+            OnSpawnEnd?.Invoke();
         }
-        
-        public PathNode GetRandomValue()
-        {
-            // Используем Random для генерации индекса
-            Random random = new Random();
-            int randomIndex = random.Next(_gridManager.Grid.Count);  // Генерируем индекс от 0 до количества элементов в словаре - 1
 
-            // Извлекаем список значений
-            var values = new List<PathNode>(_gridManager.Grid.Values);
-            return values[randomIndex]; // Возвращаем случайное значение
+        private PathNode GetRandomValue()
+        {
+            Random random = new Random();
+            List<PathNode> values = new List<PathNode>(_gridManager.Grid.Values);
+            PathNode node = null;
+
+            while (node == null)
+            {
+                int randomIndex = random.Next(values.Count);
+                node = values[randomIndex];
+
+                if (node.IsOcupied || node.MoveType == ETileMoveType.Water)
+                {
+                    node = null; 
+                }
+            }
+
+            return node;
         }
     }
 }

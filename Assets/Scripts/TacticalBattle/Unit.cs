@@ -1,41 +1,31 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Data.Scripts;
 using Extra;
 using UnityEngine;
 
 namespace TacticalBattle
 {
-    [Serializable]
-    public class UnitMoveCosts
-    {
-        public float StepCost;
-        public float RotationCost;
-    }
-
-    [Serializable]
-    public class UnitActionParams
-    {
-        public UnitMoveCosts moveParams;
-        public float ActionPoints;
-    }
-
     public class Unit : MonoBehaviour
     {
         [SerializeField] private GameObject _marker;
-        [SerializeField] private UnitActionParams _actionParams;
+        [SerializeField] private PathDrawer _PathDrawer;
+        [SerializeField] private UnitMover unitMover;
+        [SerializeField] private UnitRotator UnitRotator;
+        [SerializeField] private  float _staepForSeconds;
+        
         private PathFinder _pathFinder;
-        public PathDrawer _PathDrawer;
-        public UnitMover unitMover;
-        public UnitRotator UnitRotator;
+        private UnitStats _unitStats;
         private List<PathNode> _path;
-        private int _nodeIndex = 1;
-        public float _staepForSeconds;
         private MathOperations _mathOperations;
-        private bool _isNeedMove;
         private PathNode _targetNode;
         private PathNode _currentNode;
+        
+        private int _nodeIndex = 1;
+        private bool _isNeedMove;
+        
         public bool IsOnAction { get; private set; }
+        public ICurrentActionPoints CurrentActionPoints => _unitStats;
 
         public Vector3Int PositionInt =>
             new Vector3Int(
@@ -44,14 +34,15 @@ namespace TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode)
+        public void Init(PathFinder pathFinder, PathNode initialNode, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;
+            _unitStats = unitStats;
             _mathOperations = new MathOperations();
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;
-            
+
             Selected(false);
         }
 
@@ -59,7 +50,7 @@ namespace TacticalBattle
         {
             _nodeIndex++;
 
-            if (_nodeIndex < _path.Count)
+            if (_nodeIndex < _path.Count && _isNeedMove)
             {
                 StartCoroutine(AwaitAfterMove());
             }
@@ -99,7 +90,7 @@ namespace TacticalBattle
         private bool IsCountOrCostEnough()
         {
             var count = GetRotationCount(_targetNode);
-            bool costEnough = _actionParams.ActionPoints >= _actionParams.moveParams.RotationCost;
+            bool costEnough = _unitStats.CurrentActionPoints.value >= Constants.ROTATION_COST;
             return count > 0 && costEnough;
         }
 
@@ -145,7 +136,7 @@ namespace TacticalBattle
 
         public void SearchPath(PathNode node)
         {
-            if (node.IsOcupied || _actionParams.ActionPoints < _actionParams.moveParams.StepCost)
+            if (node.IsOcupied || _unitStats.CurrentActionPoints.value < Constants.STEP_COST)
             {
                 HidePath();
                 return;
@@ -154,7 +145,7 @@ namespace TacticalBattle
             _path = _pathFinder.FindPath(
                 _currentNode,
                 node,
-                _actionParams,
+                _unitStats.CurrentActionPoints.value,
                 transform.rotation.eulerAngles.y
             );
 
@@ -193,28 +184,28 @@ namespace TacticalBattle
 
         public void StopMoving()
         {
+            _isNeedMove = false;
         }
 
         public void LookAtNode(PathNode lookAtNode)
         {
             _targetNode = lookAtNode;
-            if(!IsCountOrCostEnough())
+            if (!IsCountOrCostEnough())
                 return;
-            
+
             IsOnAction = true;
             UnitRotator.RotateToNext(lookAtNode);
         }
 
         private void DecreaseRotationCost()
         {
-            _actionParams.ActionPoints -= _actionParams.moveParams.RotationCost;
+            _unitStats.DecreaseActionPoints(Constants.ROTATION_COST);
         }
-        
-        
+
         private void DecreaseMoveCost()
         {
-            var cost = _mathOperations.CalculateStepCost(_currentNode, _targetNode, _actionParams.moveParams.StepCost);
-            _actionParams.ActionPoints -= cost;
+            var cost = _mathOperations.CalculateStepCost(_currentNode, _targetNode, Constants.STEP_COST);
+            _unitStats.DecreaseActionPoints(cost);
         }
     }
 }

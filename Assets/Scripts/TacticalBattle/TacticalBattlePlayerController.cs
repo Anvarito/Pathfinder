@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace TacticalBattle
@@ -8,8 +9,9 @@ namespace TacticalBattle
         [SerializeField] private Unit _selectedUnit;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private Transform _cursor;
-        
+
         private PathNode _targetPathNode;
+        public event Action<Unit> OnSelectUnit; 
 
         private void Update()
         {
@@ -31,12 +33,18 @@ namespace TacticalBattle
                     return;
                 }
             }
-            
+
             if (Input.GetMouseButtonUp(1))
             {
                 if (_selectedUnit)
                 {
-                    _selectedUnit.LookAtNode(_targetPathNode);
+                    if (_selectedUnit.IsOnAction)
+                    {
+                        _selectedUnit.StopMoving();
+                    }
+                    else
+                        _selectedUnit.LookAtNode(_targetPathNode);
+
                     return;
                 }
             }
@@ -69,6 +77,7 @@ namespace TacticalBattle
 
             _selectedUnit = _hoveredUnit;
             _selectedUnit.Selected(true);
+            OnSelectUnit?.Invoke(_selectedUnit);
         }
 
         private void HoverNode(PathNode pathNode)

@@ -15,8 +15,7 @@ namespace TacticalBattle
             _mathOperations = new MathOperations();
         }
 
-        public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, UnitActionParams unitActionParams,
-            float startRotation)
+        public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, float actionPoints, float startRotation)
         {
             gridManager.ResetAllNodes();
 
@@ -54,8 +53,8 @@ namespace TacticalBattle
                     if (closedList.Contains(neighbor) || neighbor.IsOcupied)
                         continue;
 
-                    float stepCost = _mathOperations.CalculateStepCost(currentNode, neighbor, unitActionParams.moveParams.StepCost);
-                    float rotationCost = CalculateRotationCost(currentNode, neighbor, unitActionParams, currentRotation);
+                    float stepCost = _mathOperations.CalculateStepCost(currentNode, neighbor, Constants.STEP_COST);
+                    float rotationCost = CalculateRotationCost(currentNode, neighbor, Constants.ROTATION_COST, currentRotation);
                     //float stepCost2 = CalculateRotationCost(startNode, targetNode, unitActionParams, currentRotation);
 
                     // Рассчитываем новый G, H и F
@@ -64,7 +63,7 @@ namespace TacticalBattle
                     //print($"{stepCost2} ");
 
                     // Проверка на доступные очки
-                    if (newG > unitActionParams.ActionPoints)
+                    if (newG > actionPoints)
                     {
                         continue; // Пропускаем, если общая стоимость (шаг + поворот) превышает очки
                     }
@@ -92,7 +91,7 @@ namespace TacticalBattle
             return null; // Путь не найден
         }
         
-        private float CalculateRotationCost(PathNode currentNode, PathNode neighbor, UnitActionParams unitActionParams,
+        private float CalculateRotationCost(PathNode currentNode, PathNode neighbor, float rotationCost,
             float startRotation)
         {
             // Если текущий узел не имеет родителя, то передаем начальный угол
@@ -121,9 +120,9 @@ namespace TacticalBattle
             float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentRotation, targetRotation));
 
             // Рассчитываем стоимость поворота
-            float rotationCost = Mathf.Abs(angleDifference / 45) * unitActionParams.moveParams.RotationCost;
+            float totalRotationCost = Mathf.Abs(angleDifference / 45) * rotationCost;
 
-            return rotationCost;
+            return totalRotationCost;
         }
 
         private float CalculateH(PathNode currentNode, PathNode targetNode)
