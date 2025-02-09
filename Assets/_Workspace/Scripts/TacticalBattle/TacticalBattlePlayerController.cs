@@ -9,10 +9,16 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private Unit _hoveredUnit;
         [SerializeField] private Unit _selectedUnit;
         [SerializeField] private LayerMask _groundMask;
-        [SerializeField] private Transform _cursor;
+        [SerializeField] private GameObject _cursorPrefab;
 
+        private Transform _cursor;
         private PathNode _targetPathNode;
-        public event Action<Unit> OnSelectUnit; 
+        public event Action<Unit> OnSelectUnit;
+
+        private void Awake()
+        {
+            _cursor = Instantiate(_cursorPrefab, transform).transform;
+        }
 
         private void Update()
         {

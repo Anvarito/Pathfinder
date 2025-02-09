@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
 using _Workspace.Scripts.SaveLoad;
+using _Workspace.Scripts.TacticalBattle.PathFInding;
 using Extra;
 using UnityEngine;
 using Zenject;
@@ -24,18 +25,20 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private Unit _pathMoverPrefab;
         [SerializeField] private int _moverCount;
         [SerializeField] private GridManager _gridManager;
-        [SerializeField] private PathFinder pathFinder;
-
-        public event Action OnSpawnEnd;
         public List<Unit> Units { get; private set; } = new List<Unit>();
+
         private ISaveLoaderBattleUnits _saveLoaderBattleUnits;
         private MathOperations _mathOperations;
+        private IPathFinder _pathFinder;
+        
+        public event Action OnSpawnEnd;
 
         [Inject]
-        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits, MathOperations mathOperations)
+        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits, MathOperations mathOperations, IPathFinder pathFinder)
         {
             _saveLoaderBattleUnits = saveLoaderBattleUnits;
             _mathOperations = mathOperations;
+            _pathFinder = pathFinder;
         }
 
         private void OnEnable()
@@ -71,7 +74,7 @@ namespace _Workspace.Scripts.TacticalBattle
             Unit unit = Instantiate(_pathMoverPrefab, transform);
             UnitStats unitStats = new UnitStats();
             var node = GetRandomNode();
-            unit.Init(pathFinder, node, GetRandomAngle(), _mathOperations, unitStats);
+            unit.Init(_pathFinder, node, GetRandomAngle(), _mathOperations, unitStats);
             node.UnitCurrent = unit;
             unit.name = UnityEngine.Random.Range(0, 1000).ToString();
             Units.Add(unit);
@@ -97,8 +100,8 @@ namespace _Workspace.Scripts.TacticalBattle
                 UnitStats unitStats = new UnitStats(data.UnitStatsSaveData);
                 var pos = data.UnitTransformSaveData.NodePosition;
                 var rot = data.UnitTransformSaveData.RotationDir;
-                var node = _gridManager.Grid.GetValueOrDefault(pos);
-                unit.Init(pathFinder, node, rot, _mathOperations, unitStats);
+                var node = _gridManager.GetNodeBy(pos);
+                unit.Init(_pathFinder, node, rot, _mathOperations, unitStats);
                 node.UnitCurrent = unit;
                 unit.name = data.UnitName;
                 Units.Add(unit);

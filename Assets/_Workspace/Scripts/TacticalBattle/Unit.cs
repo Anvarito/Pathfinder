@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
+using _Workspace.Scripts.TacticalBattle.PathFInding;
 using Extra;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private UnitRotator UnitRotator;
         [SerializeField] private  float _staepForSeconds;
         
-        private PathFinder _pathFinder;
+        private IPathFinder _pathFinder;
         private UnitStats _unitStats;
         private List<PathNode> _path;
         private MathOperations _mathOperations;
@@ -40,7 +41,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 direction,MathOperations mathOperations, UnitStats unitStats)
+        public void Init(IPathFinder pathFinder, PathNode initialNode,Vector3 direction,MathOperations mathOperations, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;

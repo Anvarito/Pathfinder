@@ -2,7 +2,7 @@ using _Workspace.Scripts.SaveLoad;
 using Extra;
 using Zenject;
 
-namespace Infrastructure
+namespace _Workspace.Scripts.Infrastructure
 {
     public class ProjectInstaller : MonoInstaller
     {

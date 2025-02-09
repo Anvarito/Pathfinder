@@ -1,25 +1,29 @@
 using System.Collections.Generic;
 using Extra;
 using UnityEngine;
-using Zenject;
 
-namespace _Workspace.Scripts.TacticalBattle
+namespace _Workspace.Scripts.TacticalBattle.PathFInding
 {
-    public class PathFinder : MonoBehaviour
+    public interface IPathFinder
     {
-        [SerializeField] private GridManager gridManager;
-        [SerializeField] private int maxIterations = 1000;
-        private MathOperations _mathOperations;
-        
-        [Inject]
-        private void Construct(MathOperations mathOperations)
+        public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, float actionPoints,
+            float startRotation);
+    }
+    public class AstarPathFinder : IPathFinder
+    {
+        private int maxIterations = 5000;
+        private readonly MathOperations _mathOperations;
+        private readonly GridManager _gridManager;
+
+        private AstarPathFinder(MathOperations mathOperations, GridManager gridManager)
         {
             _mathOperations = mathOperations;
+            _gridManager = gridManager;
         }
 
         public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, float actionPoints, float startRotation)
         {
-            gridManager.ResetAllNodes();
+            _gridManager.ResetAllNodes();
 
             var openList = new List<PathNode>();
             var closedList = new HashSet<PathNode>();
@@ -48,7 +52,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
                 closedList.Add(currentNode);
 
-                var neighbors = gridManager.GetNeighbors(currentNode);
+                var neighbors = _gridManager.GetNeighbors(currentNode);
 
                 foreach (var neighbor in neighbors)
                 {

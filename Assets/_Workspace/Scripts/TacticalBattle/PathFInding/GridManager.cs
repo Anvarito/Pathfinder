@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace _Workspace.Scripts.TacticalBattle
+namespace _Workspace.Scripts.TacticalBattle.PathFInding
 {
     public class GridManager : MonoBehaviour
     {
@@ -77,7 +77,7 @@ namespace _Workspace.Scripts.TacticalBattle
             }
         }
 
-        public PathNode GetNode(Vector3Int position)
+        public PathNode GetNodeBy(Vector3Int position)
         {
             Grid.TryGetValue(position, out PathNode node);
             return node;
