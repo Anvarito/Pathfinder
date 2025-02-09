@@ -1349,6 +1349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5845924912604285511}
   - component: {fileID: 26297140296946910}
+  - component: {fileID: 1908687159994965040}
   m_Layer: 0
   m_Name: Banana Man
   m_TagString: Untagged
@@ -1396,6 +1397,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1908687159994965040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3729714192385742069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571a5025fe684a1bb2e948d4f6ff7d4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 26297140296946910}
+  _rotator: {fileID: 8679286411361341754}
+  _unitMover: {fileID: 5704208015905504469}
+  _unit: {fileID: 2121879579732932270}
 --- !u!1 &3745904611438058538
 GameObject:
   m_ObjectHideFlags: 0

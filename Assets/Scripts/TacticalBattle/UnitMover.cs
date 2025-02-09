@@ -11,12 +11,15 @@ namespace TacticalBattle
         private bool _runStep = false;
         private float _lerpTime;
         public event Action OnStepEnded;
+        public event Action OnMoveStart; 
+
 
         public void MoveNext(PathNode target)
         {
             _nodeToMove = target;
             _runStep = true;
             _startPos = transform.position;
+            OnMoveStart?.Invoke(); 
         }
 
         private void Update()

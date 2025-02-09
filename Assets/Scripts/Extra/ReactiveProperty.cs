@@ -25,6 +25,7 @@ namespace Infrastructure.Extras
         public void SetWithoutNotification(T value)
         {
             m_Value = value;
+            
         }
     }
 }

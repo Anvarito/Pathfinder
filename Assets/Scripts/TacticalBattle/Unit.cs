@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Data.Scripts;
@@ -26,6 +27,8 @@ namespace TacticalBattle
         
         public bool IsOnAction { get; private set; }
         public ICurrentActionPoints CurrentActionPoints => _unitStats;
+
+        public event Action OnAllActionStop; 
 
         public Vector3Int PositionInt =>
             new Vector3Int(
@@ -66,13 +69,14 @@ namespace TacticalBattle
             _isNeedMove = false;
             _path = null;
             _nodeIndex = 1;
+            OnAllActionStop?.Invoke();
         }
 
         private void RotationStepEnd()
         {
             DecreaseRotationCost();
 
-            if (IsCountOrCostEnough())
+            if (IsCountAndCostEnough())
             {
                 StartCoroutine(AwaitAfterRotation());
             }
@@ -87,7 +91,7 @@ namespace TacticalBattle
             }
         }
 
-        private bool IsCountOrCostEnough()
+        private bool IsCountAndCostEnough()
         {
             var count = GetRotationCount(_targetNode);
             bool costEnough = _unitStats.CurrentActionPoints.value >= Constants.ROTATION_COST;
@@ -190,7 +194,7 @@ namespace TacticalBattle
         public void LookAtNode(PathNode lookAtNode)
         {
             _targetNode = lookAtNode;
-            if (!IsCountOrCostEnough())
+            if (!IsCountAndCostEnough())
                 return;
 
             IsOnAction = true;

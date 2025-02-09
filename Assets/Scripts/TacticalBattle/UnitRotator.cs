@@ -11,10 +11,13 @@ namespace TacticalBattle
         private float _targetRotationY;  // Цель поворота по оси Y
         private bool _isRotating;
         public event Action OnStepEnded;
+        public event Action OnRotateStart; 
+
         
         public void RotateToNext(PathNode nextNode)
         {
             CalculateToNear(nextNode);
+            
         }
 
         private void CalculateToNear(PathNode nextNode)
@@ -34,6 +37,7 @@ namespace TacticalBattle
             _targetRotationY = (currentRotation + _nextRotationStep) % 360;
             _lerpTime = 0f;
             _isRotating = true;
+            OnRotateStart?.Invoke();
         }
 
         private void Update()
