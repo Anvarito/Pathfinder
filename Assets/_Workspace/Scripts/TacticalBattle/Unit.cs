@@ -147,9 +147,10 @@ namespace _Workspace.Scripts.TacticalBattle
 
         public void SearchPath(PathNode node)
         {
-            if (node.IsOcupied || _unitStats.CurrentActionPoints.value < Constants.STEP_COST)
+            if (node == null || node.IsOcupied || _unitStats.CurrentActionPoints.value < Constants.STEP_COST)
             {
                 HidePath();
+                _path = null;
                 return;
             }
 

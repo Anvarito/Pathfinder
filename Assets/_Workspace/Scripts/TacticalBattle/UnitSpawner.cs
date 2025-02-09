@@ -55,11 +55,12 @@ namespace _Workspace.Scripts.TacticalBattle
 
         public void Clear()
         {
-            for (int i = 0; i < Units.Count; i++)
+            // Итерация в обратном порядке, чтобы не нарушить индексы при удалении
+            for (int i = Units.Count - 1; i >= 0; i--)
             {
                 var unit = Units[i];
-                Units.Remove(unit);
-                Destroy(unit.gameObject);
+                Units.RemoveAt(i); // Удаляем элемент по индексу
+                Destroy(unit.gameObject); // Уничтожаем объект
             }
         }
 
@@ -79,6 +80,8 @@ namespace _Workspace.Scripts.TacticalBattle
         [ContextMenu("Load")]
         public void Load()
         {
+            Clear();
+            
             var datas = _saveLoaderBattleUnits.LoadUnitsData();
             for (int i = 0; i < datas.Count; i++)
             {

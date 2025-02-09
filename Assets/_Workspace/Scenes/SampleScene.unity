@@ -21078,18 +21078,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6826201241035574977, guid: 23116e7839245e340958721bec15dd10, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8521827176997656880, guid: 23116e7839245e340958721bec15dd10, type: 3}
       propertyPath: m_Name
       value: Tile
       objectReference: {fileID: 0}
-    - target: {fileID: 8666135784216165093, guid: 23116e7839245e340958721bec15dd10, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 7aef6c87ae262cf4c8caf4650402c7b1, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

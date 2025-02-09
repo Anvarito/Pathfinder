@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
@@ -15,6 +16,12 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void Update()
         {
+            if(EventSystem.current.IsPointerOverGameObject())
+            {
+                HideCursor();
+                return;
+            }
+            
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, _groundMask))
@@ -26,8 +33,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 
             }else
             {
-                _cursor.gameObject.SetActive(false);
-                _targetPathNode = null;
+                HideCursor();
             }
 
             if (Input.GetMouseButtonUp(0))
@@ -47,7 +53,7 @@ namespace _Workspace.Scripts.TacticalBattle
                     {
                         _selectedUnit.StopMoving();
                     }
-                    else
+                    else if(_targetPathNode)
                         _selectedUnit.LookAtNode(_targetPathNode);
 
                     return;
@@ -56,7 +62,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
             if (_selectedUnit && !_hoveredUnit)
             {
-                if (!_selectedUnit.IsOnAction && _targetPathNode != null)
+                if (!_selectedUnit.IsOnAction)
                 {
                     _selectedUnit.SearchPath(_targetPathNode);
                 }
@@ -74,6 +80,12 @@ namespace _Workspace.Scripts.TacticalBattle
                         _selectedUnit.ApproveMove();
                 }
             }
+        }
+
+        private void HideCursor()
+        {
+            _cursor.gameObject.SetActive(false);
+            _targetPathNode = null;
         }
 
         private void SelectedUnit()
