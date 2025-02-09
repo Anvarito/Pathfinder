@@ -40,7 +40,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 direction, UnitStats unitStats)
+        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 direction,MathOperations mathOperations, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;
@@ -49,7 +49,7 @@ namespace _Workspace.Scripts.TacticalBattle
             transform.position = initialNode.GridPosition;
             transform.rotation = Quaternion.Euler(direction);
             
-            _mathOperations = new MathOperations();
+            _mathOperations = mathOperations;
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;
 

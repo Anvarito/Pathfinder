@@ -44,6 +44,11 @@ namespace _Workspace.Scripts.Data.Scripts
             CurrentActionPoints.value -= amount;
         }
 
+        public void RestoreActionPoints()
+        {
+            CurrentActionPoints.value = MaxActionPoints;
+        }
+
         public UnitStatsSaveData GetSaveData()
         {
             UnitStatsSaveData statsSaveData = new UnitStatsSaveData()

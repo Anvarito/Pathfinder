@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using _Workspace.Scripts.TacticalBattle;
 using Extra;
 using UnityEngine;
+using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
@@ -11,9 +10,11 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private GridManager gridManager;
         [SerializeField] private int maxIterations = 1000;
         private MathOperations _mathOperations;
-        private void Awake()
+        
+        [Inject]
+        private void Construct(MathOperations mathOperations)
         {
-            _mathOperations = new MathOperations();
+            _mathOperations = mathOperations;
         }
 
         public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, float actionPoints, float startRotation)

@@ -2,12 +2,21 @@ using System;
 using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
 using _Workspace.Scripts.SaveLoad;
+using Extra;
 using UnityEngine;
 using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
-    public class UnitSpawner : MonoBehaviour
+    public interface IUnitSpawner : IUnitListHolder
+    {
+        public void Spawn();
+    }
+    public interface IUnitListHolder
+    {
+        public List<Unit> Units { get; }
+    }
+    public class UnitSpawner : MonoBehaviour, IUnitSpawner
     {
         [SerializeField] private Unit _pathMoverPrefab;
         [SerializeField] private int _moverCount;
@@ -15,13 +24,15 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private PathFinder pathFinder;
 
         public event Action OnSpawnEnd;
-        private List<Unit> _units = new List<Unit>();
+        public List<Unit> Units { get; private set; } = new List<Unit>();
         private ISaveLoaderBattleUnits _saveLoaderBattleUnits;
+        private MathOperations _mathOperations;
 
         [Inject]
-        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits)
+        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits, MathOperations mathOperations)
         {
             _saveLoaderBattleUnits = saveLoaderBattleUnits;
+            _mathOperations = mathOperations;
         }
 
         private void OnEnable()
@@ -38,21 +49,22 @@ namespace _Workspace.Scripts.TacticalBattle
 
             OnSpawnEnd?.Invoke();
         }
-        
+
+
         [ContextMenu("SpawnNew")]
         public void Spawn()
         {
             Unit unit = Instantiate(_pathMoverPrefab, transform);
             UnitStats unitStats = new UnitStats();
             var node = GetRandomNode();
-            unit.Init(pathFinder, node, GetRandomAngle(), unitStats);
+            unit.Init(pathFinder, node, GetRandomAngle(), _mathOperations, unitStats);
             node.UnitCurrent = unit;
             unit.name = UnityEngine.Random.Range(0, 1000).ToString();
-            _units.Add(unit);
+            Units.Add(unit);
         }
 
         [ContextMenu("Load")]
-        public void Load()
+        private void Load()
         {
             var datas = _saveLoaderBattleUnits.LoadUnitsData();
             for (int i = 0; i < datas.Count; i++)
@@ -64,28 +76,27 @@ namespace _Workspace.Scripts.TacticalBattle
                     Debug.Log("Data not loaded!");
                     return;
                 }
-                
+
                 Unit unit = Instantiate(_pathMoverPrefab, transform);
                 UnitStats unitStats = new UnitStats(data.UnitStatsSaveData);
                 var pos = data.UnitTransformSaveData.NodePosition;
                 var rot = data.UnitTransformSaveData.RotationDir;
                 var node = _gridManager.Grid.GetValueOrDefault(pos);
-                unit.Init(pathFinder, node, rot, unitStats);
+                unit.Init(pathFinder, node, rot, _mathOperations, unitStats);
                 node.UnitCurrent = unit;
                 unit.name = data.UnitName;
-                _units.Add(unit);
+                Units.Add(unit);
             }
         }
 
-        
 
         [ContextMenu("Save")]
         private void Save()
         {
-            _saveLoaderBattleUnits.SaveData(_units);
+            _saveLoaderBattleUnits.SaveData(Units);
         }
 
-        public Vector3 GetRandomAngle()
+        private Vector3 GetRandomAngle()
         {
             int randomIndex = UnityEngine.Random.Range(0, 8);
             float angle = randomIndex * 45f;
