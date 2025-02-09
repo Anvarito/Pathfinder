@@ -26,7 +26,9 @@ namespace TacticalBattle
         private bool _isNeedMove;
         
         public bool IsOnAction { get; private set; }
-        public ICurrentActionPoints CurrentActionPoints => _unitStats;
+        public IActionPoints ActionPoints => _unitStats;
+        public IHitPoints HitPoints => _unitStats;
+        public Vector3Int CurrentNOde => _currentNode.GridPosition;
 
         public event Action OnAllActionStop; 
 
@@ -37,14 +39,14 @@ namespace TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode,float initialRotation, UnitStats unitStats)
+        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 rQuaternion, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;
             _unitStats = unitStats;
             
             transform.position = initialNode.GridPosition;
-            transform.rotation = Quaternion.Euler(0, initialRotation, 0);
+            transform.rotation = Quaternion.Euler(rQuaternion);
             
             _mathOperations = new MathOperations();
             unitMover.OnStepEnded += MoveStepEnded;

@@ -39,16 +39,16 @@ namespace TacticalBattle.HUD
         private void UnitSelect(Unit unit)
         {
             if (_selectedUnit != null)
-                _selectedUnit.CurrentActionPoints.CurrentActionPoints.Changed -= UpdateActionPointsDisplay;
+                _selectedUnit.ActionPoints.CurrentActionPoints.Changed -= UpdateActionPointsDisplay;
 
             _selectedUnit = unit;
-            _selectedUnit.CurrentActionPoints.CurrentActionPoints.Changed += UpdateActionPointsDisplay;
-            UpdateActionPointsDisplay(_selectedUnit.CurrentActionPoints.CurrentActionPoints.value);
+            _selectedUnit.ActionPoints.CurrentActionPoints.Changed += UpdateActionPointsDisplay;
+            UpdateActionPointsDisplay(_selectedUnit.ActionPoints.CurrentActionPoints.value);
         }
 
         private void UpdateActionPointsDisplay(float current)
         {
-            var maxActionPoints = _selectedUnit.CurrentActionPoints.MaxActionPoints;
+            var maxActionPoints = _selectedUnit.ActionPoints.MaxActionPoints;
             _actionPointsBar.SetValue(current, maxActionPoints);
         }
 
