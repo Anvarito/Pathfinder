@@ -31,17 +31,21 @@ namespace TacticalBattle
         public event Action OnAllActionStop; 
 
         public Vector3Int PositionInt =>
-            new Vector3Int(
+            new(
                 Mathf.RoundToInt(transform.position.x),
                 Mathf.RoundToInt(transform.position.y),
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode, UnitStats unitStats)
+        public void Init(PathFinder pathFinder, PathNode initialNode,float initialRotation, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;
             _unitStats = unitStats;
+            
+            transform.position = initialNode.GridPosition;
+            transform.rotation = Quaternion.Euler(0, initialRotation, 0);
+            
             _mathOperations = new MathOperations();
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;

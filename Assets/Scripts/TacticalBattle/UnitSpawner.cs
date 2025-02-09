@@ -14,7 +14,7 @@ namespace TacticalBattle
         [SerializeField] private PathFinder pathFinder;
 
         public event Action OnSpawnEnd;
-        public List<Unit> Units { get; private set; } = new List<Unit>();
+        private List<Unit> _units = new List<Unit>();
 
         private void OnEnable()
         {
@@ -26,18 +26,24 @@ namespace TacticalBattle
             for (int i = 0; i < _moverCount; i++)
             {
                 Unit unit = Instantiate(_pathMoverPrefab, transform);
-                var initialMode = GetRandomValue();
                 UnitStats unitStats = new UnitStats(40, 100);
-                unit.Init(pathFinder, initialMode, unitStats);
-                initialMode.UnitCurrent = unit;
+                var initialNode = GetRandomValue();
+                unit.Init(pathFinder, initialNode,GetRandomAngle(), unitStats);
+                initialNode.UnitCurrent = unit;
                 unit.name += i;
-                unit.transform.position = initialMode.GridPosition;
-                Units.Add(unit);
+                _units.Add(unit);
             }
             
             OnSpawnEnd?.Invoke();
         }
 
+        public float GetRandomAngle()
+        {
+            int randomIndex = UnityEngine.Random.Range(0, 8);
+            float angle = randomIndex * 45f;
+
+            return angle;
+        }
         private PathNode GetRandomValue()
         {
             Random random = new Random();
