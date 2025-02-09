@@ -26,16 +26,22 @@ namespace TacticalBattle
         {
             for (int i = 0; i < _moverCount; i++)
             {
-                // Unit unit = Instantiate(_pathMoverPrefab, transform);
-                // UnitStats unitStats = new UnitStats(40, 100);
-                // var initialNode = GetRandomValue();
-                // unit.Init(pathFinder, initialNode, GetRandomAngle(), unitStats);
-                // initialNode.UnitCurrent = unit;
-                // unit.name += i;
-                // _units.Add(unit);
+                Spawn();
             }
 
             OnSpawnEnd?.Invoke();
+        }
+        
+        [ContextMenu("SpawnNew")]
+        public void Spawn()
+        {
+            Unit unit = Instantiate(_pathMoverPrefab, transform);
+            UnitStats unitStats = new UnitStats();
+            var node = GetRandomNode();
+            unit.Init(pathFinder, node, GetRandomAngle(), unitStats);
+            node.UnitCurrent = unit;
+            unit.name = UnityEngine.Random.Range(0, 1000).ToString();
+            _units.Add(unit);
         }
 
         [ContextMenu("Load")]
@@ -44,18 +50,21 @@ namespace TacticalBattle
             var datas = LoadUnitsData();
             for (int i = 0; i < datas.Count; i++)
             {
-                UnitSaveData data;
-                if (datas[i] == null)
+                UnitSaveData data = datas[i];
+                if (data == null)
                 {
-                    data = datas[0];
+                    Spawn();
+                    Debug.Log("Data not loaded!");
+                    return;
                 }
-
-                data = datas[i];
+                
                 Unit unit = Instantiate(_pathMoverPrefab, transform);
-                UnitStats unitStats = new UnitStats(data.MaxActionPoints, data.MaxHitPoints, data.CurrentActionPoints,data.CurrentHitPoints);
-                Vector3Int toInt = new Vector3Int((int)data.CurrentNode.x, (int)data.CurrentNode.y, (int)data.CurrentNode.z);
-                var node = _gridManager.Grid.GetValueOrDefault(toInt);
-                unit.Init(pathFinder, node,data.Rotation , unitStats);
+                UnitStats unitStats = new UnitStats(data.UnitStatsSaveData);
+
+                var pos = data.UnitTransformSaveData.NodePosition;
+                var rot = data.UnitTransformSaveData.RotationDir;
+                var node = _gridManager.Grid.GetValueOrDefault(pos);
+                unit.Init(pathFinder, node, rot, unitStats);
                 node.UnitCurrent = unit;
                 unit.name = data.UnitName;
                 _units.Add(unit);
@@ -75,10 +84,7 @@ namespace TacticalBattle
             List<UnitSaveData> saveDatas = new List<UnitSaveData>();
             foreach (var unit in _units)
             {
-                UnitSaveData unitSaveData =
-                    new UnitSaveData(unit.name, unit.CurrentNOde, unit.transform.position, unit.transform.eulerAngles,
-                        unit.ActionPoints.CurrentActionPoints.value, unit.ActionPoints.MaxActionPoints,
-                        unit.HitPoints.MaxHitPoints, unit.HitPoints.CurrentHitPoints.value);
+                UnitSaveData unitSaveData = new UnitSaveData(unit.name, unit.GetSaveData(), unit.Stats.GetSaveData());
                 saveDatas.Add(unitSaveData);
             }
 
@@ -86,15 +92,15 @@ namespace TacticalBattle
             SaveSystem.SaveAll();
         }
 
-        public float GetRandomAngle()
+        public Vector3 GetRandomAngle()
         {
             int randomIndex = UnityEngine.Random.Range(0, 8);
             float angle = randomIndex * 45f;
-
-            return angle;
+            Vector3 dir = new Vector3(0, angle, 0);
+            return dir;
         }
 
-        private PathNode GetRandomValue()
+        private PathNode GetRandomNode()
         {
             Random random = new Random();
             List<PathNode> values = new List<PathNode>(_gridManager.Grid.Values);

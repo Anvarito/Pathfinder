@@ -10995,7 +10995,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pathMoverPrefab: {fileID: 2121879579732932270, guid: 31eb7afbd1ec98643801edb753d9fd6f, type: 3}
-  _moverCount: 1
+  _moverCount: 0
   _gridManager: {fileID: 942649746}
   pathFinder: {fileID: 1338450923}
 --- !u!4 &751423556

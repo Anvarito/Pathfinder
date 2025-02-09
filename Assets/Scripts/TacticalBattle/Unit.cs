@@ -24,10 +24,11 @@ namespace TacticalBattle
         
         private int _nodeIndex = 1;
         private bool _isNeedMove;
-        
+
         public bool IsOnAction { get; private set; }
         public IActionPoints ActionPoints => _unitStats;
         public IHitPoints HitPoints => _unitStats;
+        public UnitStats Stats => _unitStats;
         public Vector3Int CurrentNOde => _currentNode.GridPosition;
 
         public event Action OnAllActionStop; 
@@ -39,14 +40,14 @@ namespace TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 rQuaternion, UnitStats unitStats)
+        public void Init(PathFinder pathFinder, PathNode initialNode,Vector3 direction, UnitStats unitStats)
         {
             _pathFinder = pathFinder;
             _currentNode = initialNode;
             _unitStats = unitStats;
             
             transform.position = initialNode.GridPosition;
-            transform.rotation = Quaternion.Euler(rQuaternion);
+            transform.rotation = Quaternion.Euler(direction);
             
             _mathOperations = new MathOperations();
             unitMover.OnStepEnded += MoveStepEnded;
@@ -216,6 +217,23 @@ namespace TacticalBattle
         {
             var cost = _mathOperations.CalculateStepCost(_currentNode, _targetNode, Constants.STEP_COST);
             _unitStats.DecreaseActionPoints(cost);
+        }
+        
+        public class UnitTransformSaveData
+        {
+            public Vector3Int NodePosition;
+            public Vector3 RotationDir;
+        }
+
+        public UnitTransformSaveData GetSaveData()
+        {
+            UnitTransformSaveData transformSaveData = new UnitTransformSaveData()
+            {
+                NodePosition = CurrentNOde,
+                RotationDir = transform.eulerAngles
+            };
+
+            return transformSaveData;
         }
     }
 }
