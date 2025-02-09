@@ -11,6 +11,9 @@ namespace _Workspace.Scripts.TacticalBattle
     public interface IUnitSpawner : IUnitListHolder
     {
         public void Spawn();
+        public void Save();
+        public void Load();
+        public void Clear();
     }
     public interface IUnitListHolder
     {
@@ -50,6 +53,16 @@ namespace _Workspace.Scripts.TacticalBattle
             OnSpawnEnd?.Invoke();
         }
 
+        public void Clear()
+        {
+            for (int i = 0; i < Units.Count; i++)
+            {
+                var unit = Units[i];
+                Units.Remove(unit);
+                Destroy(unit.gameObject);
+            }
+        }
+
 
         [ContextMenu("SpawnNew")]
         public void Spawn()
@@ -64,7 +77,7 @@ namespace _Workspace.Scripts.TacticalBattle
         }
 
         [ContextMenu("Load")]
-        private void Load()
+        public void Load()
         {
             var datas = _saveLoaderBattleUnits.LoadUnitsData();
             for (int i = 0; i < datas.Count; i++)
@@ -91,7 +104,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
 
         [ContextMenu("Save")]
-        private void Save()
+        public void Save()
         {
             _saveLoaderBattleUnits.SaveData(Units);
         }

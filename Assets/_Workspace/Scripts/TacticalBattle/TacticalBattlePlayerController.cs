@@ -23,6 +23,11 @@ namespace _Workspace.Scripts.TacticalBattle
                 {
                     HoverNode(pathNode);
                 }
+                
+            }else
+            {
+                _cursor.gameObject.SetActive(false);
+                _targetPathNode = null;
             }
 
             if (Input.GetMouseButtonUp(0))
@@ -51,7 +56,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
             if (_selectedUnit && !_hoveredUnit)
             {
-                if (!_selectedUnit.IsOnAction)
+                if (!_selectedUnit.IsOnAction && _targetPathNode != null)
                 {
                     _selectedUnit.SearchPath(_targetPathNode);
                 }
@@ -59,12 +64,15 @@ namespace _Workspace.Scripts.TacticalBattle
 
             if (Input.GetMouseButtonUp(0))
             {
-                if (_selectedUnit.IsOnAction)
+                if (_selectedUnit)
                 {
-                    _selectedUnit.StopMoving();
+                    if (_selectedUnit.IsOnAction)
+                    {
+                        _selectedUnit.StopMoving();
+                    }
+                    else
+                        _selectedUnit.ApproveMove();
                 }
-                else
-                    _selectedUnit.ApproveMove();
             }
         }
 
@@ -83,6 +91,7 @@ namespace _Workspace.Scripts.TacticalBattle
         private void HoverNode(PathNode pathNode)
         {
             _targetPathNode = pathNode;
+            _cursor.gameObject.SetActive(true);
             _cursor.position = _targetPathNode.GridPosition;
             if (_targetPathNode.IsOcupied)
             {

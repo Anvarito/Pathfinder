@@ -21,6 +21,29 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             Debug.Log("PROC INIT");
             _mainButtonListener.OnTurnEndPress += OnTurnEndPress;
+            _mainButtonListener.OnClearPress += Clear;
+            _mainButtonListener.OnLoadPress += Load;
+            _mainButtonListener.OnSavePress += Save;
+            _mainButtonListener.OnSpawnOnePress += SpawnOne;
+        }
+        private void SpawnOne()
+        {
+            _unitSpawner.Spawn();
+        }
+
+        private void Clear()
+        {
+            _unitSpawner.Clear();
+        }
+
+        private void Load()
+        {
+            _unitSpawner.Load();
+        }
+
+        private void Save()
+        {
+            _unitSpawner.Save();
         }
 
         private void OnTurnEndPress()
@@ -34,6 +57,10 @@ namespace _Workspace.Scripts.TacticalBattle
         public void Dispose()
         {
             _mainButtonListener.OnTurnEndPress -= OnTurnEndPress;
+            _mainButtonListener.OnClearPress -= Clear;
+            _mainButtonListener.OnLoadPress -= Load;
+            _mainButtonListener.OnSavePress -= Save;
+            _mainButtonListener.OnSpawnOnePress -= SpawnOne;
         }
     }
 }
