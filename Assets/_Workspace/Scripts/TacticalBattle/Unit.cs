@@ -66,6 +66,12 @@ namespace _Workspace.Scripts.TacticalBattle
             OnAllActionStop?.Invoke();
         }
 
+        [ContextMenu("Hurt")]
+        private void Hurt()
+        {
+            Stats.DecreaseHitPoints(5);
+        }
+
         private void RotationStepEnd()
         {
             DecreaseRotationCost();

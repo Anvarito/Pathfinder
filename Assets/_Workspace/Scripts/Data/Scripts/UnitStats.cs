@@ -40,6 +40,11 @@ namespace _Workspace.Scripts.Data.Scripts
         {
             CurrentActionPoints.value -= amount;
         }
+        
+        public void DecreaseHitPoints(float amount)
+        {
+            CurrentHitPoints.value -= amount;
+        }
 
         public void RestoreActionPoints()
         {

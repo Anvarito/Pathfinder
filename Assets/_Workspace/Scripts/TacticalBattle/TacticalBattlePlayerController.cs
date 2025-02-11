@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Workspace.Scripts.Data.Scripts;
 using _Workspace.Scripts.PlayerInput;
 using _Workspace.Scripts.TacticalBattle.PathFInding;
 using Extra;
@@ -23,7 +24,7 @@ namespace _Workspace.Scripts.TacticalBattle
         private IPathFinder _pathFinder;
         private List<PathNode> _path;
         private IInputService _inputService;
-        public event Action<Unit> OnSelectUnit;
+        public event Action<IUnitStats> OnSelectUnit;
 
         [Inject]
         public void Construct(IPathFinder pathFinder, IInputService inputService)
@@ -171,7 +172,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
             _selectedUnit = _hoveredUnit;
             _selectedUnit.UnitHighlighter.SetSelected(true);
-            OnSelectUnit?.Invoke(_selectedUnit);
+            OnSelectUnit?.Invoke(_selectedUnit.Stats);
         }
 
         private void HoverNode(PathNode pathNode)
@@ -182,9 +183,11 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void HighlightUnit()
         {
+            
             if (_targetPathNode.IsOcupied)
             {
                 _hoveredUnit = _targetPathNode.UnitCurrent;
+
                 if (_hoveredUnit != _prevHoveredUnit)
                 {
                     _prevHoveredUnit?.UnitHighlighter.SetHighlight(false);
@@ -197,7 +200,9 @@ namespace _Workspace.Scripts.TacticalBattle
                 if (_hoveredUnit)
                     _hoveredUnit.UnitHighlighter.SetHighlight(false);
                 _hoveredUnit = null;
+                _prevHoveredUnit = null;
             }
+            
         }
     }
 }
