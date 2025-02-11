@@ -12,17 +12,43 @@ namespace Extra
             return isDiagonal;
         }
         
-        public int CalculateRotationCount(float yRotation, Vector3 from, Vector3 to)
+        public int CalculateRotationCount(float yRotation, PathNode from, PathNode to)
         {
-            Vector3 targetDirection = to - from;
-            int targetRotation = GetRotation(targetDirection);
             int currentRotation = Mathf.RoundToInt(Mathf.DeltaAngle(0, yRotation));
-            int angleDiff = (int)Mathf.DeltaAngle(currentRotation, targetRotation);
-            return Mathf.Abs(angleDiff / 45);
+            
+            var angleDifference = GetAngleDifference(from, to, currentRotation);
+            return Mathf.Abs(angleDifference / 45);
         }
 
-        public int GetRotation(Vector3 targetDirection)
+        public float CalculateRotationCost(PathNode currentNode, PathNode targetNode, float startRotation)
         {
+            float currentRotation;
+            if (currentNode.Parent == null)
+            {
+                currentRotation = Mathf.RoundToInt(Mathf.DeltaAngle(0, startRotation));
+            }
+            else
+            {
+                var parentPosition = currentNode.Parent.GridPosition;
+                Vector3 dirFromParent = currentNode.GridPosition - parentPosition;
+                currentRotation = Mathf.Atan2(dirFromParent.x, dirFromParent.z) * Mathf.Rad2Deg;
+            }
+            
+            var angleDifference = GetAngleDifference(currentNode, targetNode, currentRotation);
+            return Mathf.Abs(angleDifference / 45);
+        }
+
+        
+        private int GetAngleDifference(PathNode from, PathNode to, float currentRotation)
+        {
+            int targetRotation = GetRotation(from, to);
+            int angleDifference = (int)Mathf.DeltaAngle(currentRotation, targetRotation);
+            return angleDifference;
+        }
+
+        public int GetRotation(PathNode from, PathNode to)
+        {
+            Vector3 targetDirection = to.GridPosition - from.GridPosition;
             return Mathf.RoundToInt(Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg);
         }
         

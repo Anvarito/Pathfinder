@@ -60,7 +60,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
                         continue;
 
                     float stepCost = _mathOperations.CalculateStepCost(currentNode, neighbor, Constants.STEP_COST);
-                    float rotationCost = CalculateRotationCost(currentNode, neighbor, Constants.ROTATION_COST, currentRotation);
+                    float rotationCost = _mathOperations.CalculateRotationCost(currentNode, neighbor, currentRotation) * Constants.ROTATION_COST;
                     //float stepCost2 = CalculateRotationCost(startNode, targetNode, unitActionParams, currentRotation);
 
                     // Рассчитываем новый G, H и F
@@ -97,39 +97,6 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
             return null; // Путь не найден
         }
         
-        public float CalculateRotationCost(PathNode currentNode, PathNode neighbor, float rotationCost,
-            float startRotation)
-        {
-            // Если текущий узел не имеет родителя, то передаем начальный угол
-            float currentRotation;
-            if (currentNode.Parent == null)
-            {
-                // Это первая клетка, используем стартовый угол
-                currentRotation = Mathf.RoundToInt(Mathf.DeltaAngle(0, startRotation));
-            }
-            else
-            {
-                // Если родитель существует, вычисляем угол относительно родителя
-                var parentPosition = currentNode.Parent.GridPosition;
-                Vector3 dirFromParent = currentNode.GridPosition - parentPosition;
-                currentRotation = Mathf.Atan2(dirFromParent.x, dirFromParent.z) * Mathf.Rad2Deg;
-            }
-            
-            //print(currentRotation);
-
-            // Направление к следующей клетке
-            Vector3 directionToNeighbor = neighbor.GridPosition - currentNode.GridPosition;
-            float targetRotation = Mathf.Atan2(directionToNeighbor.x, directionToNeighbor.z) * Mathf.Rad2Deg;
-
-            // Разница углов
-            float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentRotation, targetRotation));
-
-            // Рассчитываем стоимость поворота
-            float totalRotationCost = Mathf.Abs(angleDifference / 45) * rotationCost;
-
-            return totalRotationCost;
-        }
-
         
 
         private List<PathNode> ReconstructPath(PathNode targetNode)

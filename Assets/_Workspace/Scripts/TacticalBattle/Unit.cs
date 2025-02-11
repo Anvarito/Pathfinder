@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
 using Extra;
 using UnityEngine;
+using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
     public class Unit : MonoBehaviour
     {
-        [SerializeField] private GameObject _marker;
         [SerializeField] private UnitMover unitMover;
         [SerializeField] private UnitRotator UnitRotator;
         [SerializeField] private float _staepForSeconds;
+        public UnitHighlighter UnitHighlighter;
 
         public PathNode CurrentPathNode => _currentNode;
 
@@ -37,6 +38,11 @@ namespace _Workspace.Scripts.TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
+        [Inject]
+        public void COnstruct(UnitMover mover)
+        {
+            print(mover);
+        }
         public void Init(PathNode initialNode, Vector3 direction,
             MathOperations mathOperations, UnitStats unitStats)
         {
@@ -46,10 +52,10 @@ namespace _Workspace.Scripts.TacticalBattle
             transform.rotation = Quaternion.Euler(direction);
 
             _mathOperations = mathOperations;
+            UnitHighlighter = GetComponent<UnitHighlighter>();
+            
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;
-
-            Selected(false);
         }
 
         private void MoveStepEnded()
@@ -96,8 +102,9 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private bool IsCountAndCostEnough()
         {
-            var count = GetRotationCount(_targetNode);
+            var count = GetRotationCount();
             bool costEnough = _unitStats.CurrentActionPoints.value >= Constants.ROTATION_COST;
+
             return count > 0 && costEnough;
         }
 
@@ -117,7 +124,7 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             _targetNode = _path[_nodeIndex];
 
-            if (GetRotationCount(_targetNode) == 0)
+            if (GetRotationCount() == 0)
             {
                 _currentNode.UnitCurrent = null;
                 _targetNode.UnitCurrent = this;
@@ -131,22 +138,11 @@ namespace _Workspace.Scripts.TacticalBattle
             }
         }
 
-        private int GetRotationCount(PathNode pathNode)
+        private int GetRotationCount()
         {
-            int count = _mathOperations.CalculateRotationCount(transform.eulerAngles.y, PositionInt,
-                pathNode.GridPosition);
+            int count = _mathOperations.CalculateRotationCount(transform.eulerAngles.y, _currentNode,
+                _targetNode);
             return count;
-        }
-
-
-        public void Selected(bool isSelect)
-        {
-            _marker.SetActive(isSelect);
-        }
-
-
-        public void HoverHighlight()
-        {
         }
 
         public void ApproveMove(List<PathNode> pathNodes)

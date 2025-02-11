@@ -14,12 +14,10 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             _unitSpawner = spawner;
             _mainButtonListener = mainButtonListener;
-            Debug.Log("PROC CONST");
         }
 
         public void Initialize()
         {
-            Debug.Log("PROC INIT");
             _mainButtonListener.OnTurnEndPress += OnTurnEndPress;
             _mainButtonListener.OnClearPress += Clear;
             _mainButtonListener.OnLoadPress += Load;

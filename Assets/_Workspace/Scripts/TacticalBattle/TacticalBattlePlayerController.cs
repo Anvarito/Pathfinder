@@ -16,6 +16,7 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private PathDrawer _pathDrawer;
 
         private Unit _hoveredUnit;
+        private Unit _prevHoveredUnit;
         private Unit _selectedUnit;
         private Transform _cursor;
         private PathNode _targetPathNode;
@@ -61,6 +62,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 if (hit.transform.TryGetComponent(out PathNode pathNode))
                 {
                     HoverNode(pathNode);
+                    HighlightUnit();
                 }
             }
             else
@@ -112,7 +114,8 @@ namespace _Workspace.Scripts.TacticalBattle
         private void TryFindPathForSelectedUnit()
         {
             bool unitSelectedAndStay = _selectedUnit && !_selectedUnit.IsOnAction;
-            bool unitHaveMoveCost = _selectedUnit && _selectedUnit.Stats.CurrentActionPoints.value >= Constants.STEP_COST;
+            bool unitHaveMoveCost =
+                _selectedUnit && _selectedUnit.Stats.CurrentActionPoints.value >= Constants.STEP_COST;
 
             if (
                 _targetPathNode
@@ -161,13 +164,13 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void SelectedUnit()
         {
-            if (_selectedUnit != null && _selectedUnit != _hoveredUnit)
+            if (_selectedUnit != null)
             {
-                _selectedUnit.Selected(false);
+                _selectedUnit.UnitHighlighter.SetSelected(false);
             }
 
             _selectedUnit = _hoveredUnit;
-            _selectedUnit.Selected(true);
+            _selectedUnit.UnitHighlighter.SetSelected(true);
             OnSelectUnit?.Invoke(_selectedUnit);
         }
 
@@ -175,13 +178,26 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             _targetPathNode = pathNode;
             _cursor.position = _targetPathNode.GridPosition;
+        }
+
+        private void HighlightUnit()
+        {
             if (_targetPathNode.IsOcupied)
             {
                 _hoveredUnit = _targetPathNode.UnitCurrent;
-                _hoveredUnit.HoverHighlight();
+                if (_hoveredUnit != _prevHoveredUnit)
+                {
+                    _prevHoveredUnit?.UnitHighlighter.SetHighlight(false);
+                    _hoveredUnit.UnitHighlighter.SetHighlight(true);
+                    _prevHoveredUnit = _hoveredUnit;
+                }
             }
             else
+            {
+                if (_hoveredUnit)
+                    _hoveredUnit.UnitHighlighter.SetHighlight(false);
                 _hoveredUnit = null;
+            }
         }
     }
 }
