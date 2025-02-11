@@ -29,16 +29,14 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private ISaveLoaderBattleUnits _saveLoaderBattleUnits;
         private MathOperations _mathOperations;
-        private IPathFinder _pathFinder;
-        
+
         public event Action OnSpawnEnd;
 
         [Inject]
-        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits, MathOperations mathOperations, IPathFinder pathFinder)
+        public void Construct(ISaveLoaderBattleUnits saveLoaderBattleUnits, MathOperations mathOperations)
         {
             _saveLoaderBattleUnits = saveLoaderBattleUnits;
             _mathOperations = mathOperations;
-            _pathFinder = pathFinder;
         }
 
         private void OnEnable()
@@ -74,7 +72,7 @@ namespace _Workspace.Scripts.TacticalBattle
             Unit unit = Instantiate(_pathMoverPrefab, transform);
             UnitStats unitStats = new UnitStats();
             var node = GetRandomNode();
-            unit.Init(_pathFinder, node, GetRandomAngle(), _mathOperations, unitStats);
+            unit.Init(node, GetRandomAngle(), _mathOperations, unitStats);
             node.UnitCurrent = unit;
             unit.name = UnityEngine.Random.Range(0, 1000).ToString();
             Units.Add(unit);
@@ -101,7 +99,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 var pos = data.UnitTransformSaveData.NodePosition;
                 var rot = data.UnitTransformSaveData.RotationDir;
                 var node = _gridManager.GetNodeBy(pos);
-                unit.Init(_pathFinder, node, rot, _mathOperations, unitStats);
+                unit.Init(node, rot, _mathOperations, unitStats);
                 node.UnitCurrent = unit;
                 unit.name = data.UnitName;
                 Units.Add(unit);

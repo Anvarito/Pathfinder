@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace _Workspace.Scripts.GameCamera
@@ -10,6 +11,8 @@ namespace _Workspace.Scripts.GameCamera
         [SerializeField] private float zoomSpeed = 10f;
         [SerializeField] private float panSpeed = 20f;
 
+        public event Action OnRotation;
+        
         private void Update()
         {
             if (Input.GetMouseButton(1)) // Правая кнопка мыши

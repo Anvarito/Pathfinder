@@ -29,7 +29,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
             var closedList = new HashSet<PathNode>();
 
             startNode.G = 0;
-            startNode.H = CalculateH(startNode, targetNode);
+            startNode.H = _mathOperations.CalculateH(startNode, targetNode);
             startNode.Parent = null;
             openList.Add(startNode);
 
@@ -65,7 +65,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
 
                     // Рассчитываем новый G, H и F
                     float newG = currentNode.G + stepCost + rotationCost;
-                    float newH = CalculateH(neighbor, targetNode);
+                    float newH = _mathOperations.CalculateH(neighbor, targetNode);
                     //print($"{stepCost2} ");
 
                     // Проверка на доступные очки
@@ -97,7 +97,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
             return null; // Путь не найден
         }
         
-        private float CalculateRotationCost(PathNode currentNode, PathNode neighbor, float rotationCost,
+        public float CalculateRotationCost(PathNode currentNode, PathNode neighbor, float rotationCost,
             float startRotation)
         {
             // Если текущий узел не имеет родителя, то передаем начальный угол
@@ -130,11 +130,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
             return totalRotationCost;
         }
 
-        private float CalculateH(PathNode currentNode, PathNode targetNode)
-        {
-            return Mathf.Abs(currentNode.GridPosition.x - targetNode.GridPosition.x) +
-                   Mathf.Abs(currentNode.GridPosition.z - targetNode.GridPosition.z);
-        }
+        
 
         private List<PathNode> ReconstructPath(PathNode targetNode)
         {

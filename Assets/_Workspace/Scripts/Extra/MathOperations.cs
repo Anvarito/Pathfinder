@@ -47,5 +47,11 @@ namespace Extra
 
             return cost;
         }
+        
+        public float CalculateH(PathNode currentNode, PathNode targetNode)
+        {
+            return Mathf.Abs(currentNode.GridPosition.x - targetNode.GridPosition.x) +
+                   Mathf.Abs(currentNode.GridPosition.z - targetNode.GridPosition.z);
+        }
     }
 }

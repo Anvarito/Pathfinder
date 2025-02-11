@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -14,13 +15,22 @@ namespace _Workspace.Scripts.TacticalBattle
     public class PathNode : MonoBehaviour
     {
         [SerializeField] private ETileMoveType _moveType;
+        private MeshRenderer _meshRenderer;
         public TextMeshProUGUI _Text;
+        public readonly string _slideParam = "_Slide";
 
         public Wall WallPrefab;
 
         // Словарь для хранения стен по направлениям
         private Dictionary<Wall.WallDirection, Wall> _walls = new Dictionary<Wall.WallDirection, Wall>();
         public Unit UnitCurrent { get; set; }
+
+        private void Awake()
+        {
+            _meshRenderer = GetComponent<MeshRenderer>();
+            Material material = new Material(_meshRenderer.sharedMaterial);
+            _meshRenderer.sharedMaterial = material;
+        }
 
         public Vector3Int GridPosition
         {
@@ -49,6 +59,16 @@ namespace _Workspace.Scripts.TacticalBattle
             G = 0;
             H = 0;
             Parent = null;
+        }
+
+        public void SetNodeAsWalkableColor()
+        {
+            _meshRenderer.sharedMaterial.SetFloat(_slideParam, 1);
+        }
+
+        public void SetNodeAsNormalColor()
+        {
+            _meshRenderer.sharedMaterial.SetFloat(_slideParam, 0);
         }
 
         public void FindWalls()

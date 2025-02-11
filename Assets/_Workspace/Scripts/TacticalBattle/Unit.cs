@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
-using _Workspace.Scripts.TacticalBattle.PathFInding;
 using Extra;
 using UnityEngine;
 
@@ -11,28 +10,25 @@ namespace _Workspace.Scripts.TacticalBattle
     public class Unit : MonoBehaviour
     {
         [SerializeField] private GameObject _marker;
-        [SerializeField] private PathDrawer _PathDrawer;
         [SerializeField] private UnitMover unitMover;
         [SerializeField] private UnitRotator UnitRotator;
-        [SerializeField] private  float _staepForSeconds;
-        
-        private IPathFinder _pathFinder;
+        [SerializeField] private float _staepForSeconds;
+
+        public PathNode CurrentPathNode => _currentNode;
+
         private UnitStats _unitStats;
         private List<PathNode> _path;
         private MathOperations _mathOperations;
         private PathNode _targetNode;
         private PathNode _currentNode;
-        
+
         private int _nodeIndex = 1;
         private bool _isNeedMove;
 
         public bool IsOnAction { get; private set; }
-        public IActionPoints ActionPoints => _unitStats;
-        public IHitPoints HitPoints => _unitStats;
         public UnitStats Stats => _unitStats;
-        public Vector3Int CurrentNOde => _currentNode.GridPosition;
 
-        public event Action OnAllActionStop; 
+        public event Action OnAllActionStop;
 
         public Vector3Int PositionInt =>
             new(
@@ -41,15 +37,14 @@ namespace _Workspace.Scripts.TacticalBattle
                 Mathf.RoundToInt(transform.position.z)
             );
 
-        public void Init(IPathFinder pathFinder, PathNode initialNode,Vector3 direction,MathOperations mathOperations, UnitStats unitStats)
+        public void Init(PathNode initialNode, Vector3 direction,
+            MathOperations mathOperations, UnitStats unitStats)
         {
-            _pathFinder = pathFinder;
             _currentNode = initialNode;
             _unitStats = unitStats;
-            
             transform.position = initialNode.GridPosition;
             transform.rotation = Quaternion.Euler(direction);
-            
+
             _mathOperations = mathOperations;
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;
@@ -134,8 +129,6 @@ namespace _Workspace.Scripts.TacticalBattle
             {
                 UnitRotator.RotateToNext(_targetNode);
             }
-
-            HidePath();
         }
 
         private int GetRotationCount(PathNode pathNode)
@@ -146,53 +139,22 @@ namespace _Workspace.Scripts.TacticalBattle
         }
 
 
-        public void SearchPath(PathNode node)
-        {
-            if (node == null || node.IsOcupied || _unitStats.CurrentActionPoints.value < Constants.STEP_COST)
-            {
-                HidePath();
-                _path = null;
-                return;
-            }
-
-            _path = _pathFinder.FindPath(
-                _currentNode,
-                node,
-                _unitStats.CurrentActionPoints.value,
-                transform.rotation.eulerAngles.y
-            );
-
-
-            if (_path != null)
-                _PathDrawer.UpdatePathVisualization(_path);
-            else
-            {
-                HidePath();
-            }
-        }
-
         public void Selected(bool isSelect)
         {
             _marker.SetActive(isSelect);
         }
 
-        public void HidePath()
-        {
-            _PathDrawer.ClearPathVisualization();
-        }
 
         public void HoverHighlight()
         {
         }
 
-        public void ApproveMove()
+        public void ApproveMove(List<PathNode> pathNodes)
         {
-            if (_path != null)
-            {
-                _isNeedMove = true;
-                IsOnAction = true;
-                RunPath();
-            }
+            _path = pathNodes;
+            _isNeedMove = true;
+            IsOnAction = true;
+            RunPath();
         }
 
         public void StopMoving()
@@ -220,7 +182,7 @@ namespace _Workspace.Scripts.TacticalBattle
             var cost = _mathOperations.CalculateStepCost(_currentNode, _targetNode, Constants.STEP_COST);
             _unitStats.DecreaseActionPoints(cost);
         }
-        
+
         public class UnitTransformSaveData
         {
             public Vector3Int NodePosition;
@@ -231,7 +193,7 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             UnitTransformSaveData transformSaveData = new UnitTransformSaveData()
             {
-                NodePosition = CurrentNOde,
+                NodePosition = _currentNode.GridPosition,
                 RotationDir = transform.eulerAngles
             };
 

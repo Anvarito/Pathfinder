@@ -3,19 +3,16 @@ using Infrastructure.Extras;
 
 namespace _Workspace.Scripts.Data.Scripts
 {
-    public interface IHitPoints
+    public interface IUnitStats
     {
         public float MaxHitPoints { get; }
         public ReactiveProperty<float> CurrentHitPoints { get; }
-    }
-
-    public interface IActionPoints
-    {
+   
         public float MaxActionPoints { get; }
         public ReactiveProperty<float> CurrentActionPoints { get; }
     }
 
-    public class UnitStats : IActionPoints, IHitPoints
+    public class UnitStats : IUnitStats
     {
         public float MaxHitPoints { get; private set; } = 100;
         public ReactiveProperty<float> CurrentHitPoints { get; }

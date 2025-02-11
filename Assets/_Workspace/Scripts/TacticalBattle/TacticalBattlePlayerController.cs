@@ -1,19 +1,45 @@
 using System;
+using System.Collections.Generic;
+using _Workspace.Scripts.PlayerInput;
+using _Workspace.Scripts.TacticalBattle.PathFInding;
+using Extra;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
     public class TacticalBattlePlayerController : MonoBehaviour
     {
-        [SerializeField] private Unit _hoveredUnit;
-        [SerializeField] private Unit _selectedUnit;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private GameObject _cursorPrefab;
+        [SerializeField] private PathDrawer _pathDrawer;
 
+        private Unit _hoveredUnit;
+        private Unit _selectedUnit;
         private Transform _cursor;
         private PathNode _targetPathNode;
+        private IPathFinder _pathFinder;
+        private List<PathNode> _path;
+        private IInputService _inputService;
         public event Action<Unit> OnSelectUnit;
+
+        [Inject]
+        public void Construct(IPathFinder pathFinder, IInputService inputService)
+        {
+            _pathFinder = pathFinder;
+            _inputService = inputService;
+
+            _inputService.OnLeftMouseUp += OnLeftMouseUp;
+            _inputService.OnRightMouseUp += OnRightMouseUp;
+        }
+
+        private void OnDestroy()
+        {
+            _inputService.OnLeftMouseUp -= OnLeftMouseUp;
+            _inputService.OnRightMouseUp -= OnRightMouseUp;
+        }
+
 
         private void Awake()
         {
@@ -22,12 +48,12 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void Update()
         {
-            if(EventSystem.current.IsPointerOverGameObject())
+            if (EventSystem.current.IsPointerOverGameObject()) // above ui
             {
-                HideCursor();
+                CursorToggleActive();
                 return;
             }
-            
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, _groundMask))
@@ -36,62 +62,101 @@ namespace _Workspace.Scripts.TacticalBattle
                 {
                     HoverNode(pathNode);
                 }
-                
-            }else
+            }
+            else
             {
-                HideCursor();
+                _targetPathNode = null;
             }
 
-            if (Input.GetMouseButtonUp(0))
+            TryFindPathForSelectedUnit();
+
+            CursorToggleActive();
+        }
+
+
+        private void OnRightMouseUp()
+        {
+            if (_selectedUnit)
             {
-                if (_hoveredUnit)
+                if (_selectedUnit.IsOnAction)
                 {
-                    SelectedUnit();
-                    return;
+                    _selectedUnit.StopMoving();
                 }
+                else if (_targetPathNode)
+                    _selectedUnit.LookAtNode(_targetPathNode);
+            }
+        }
+
+        private void OnLeftMouseUp()
+        {
+            if (_hoveredUnit && _selectedUnit != _hoveredUnit)
+            {
+                SelectedUnit();
+                return;
             }
 
-            if (Input.GetMouseButtonUp(1))
+            if (_selectedUnit)
             {
-                if (_selectedUnit)
+                if (_selectedUnit.IsOnAction)
                 {
-                    if (_selectedUnit.IsOnAction)
-                    {
-                        _selectedUnit.StopMoving();
-                    }
-                    else if(_targetPathNode)
-                        _selectedUnit.LookAtNode(_targetPathNode);
-
-                    return;
+                    _selectedUnit.StopMoving();
                 }
-            }
-
-            if (_selectedUnit && !_hoveredUnit)
-            {
-                if (!_selectedUnit.IsOnAction)
+                else
                 {
-                    _selectedUnit.SearchPath(_targetPathNode);
-                }
-            }
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                if (_selectedUnit)
-                {
-                    if (_selectedUnit.IsOnAction)
-                    {
-                        _selectedUnit.StopMoving();
-                    }
-                    else
-                        _selectedUnit.ApproveMove();
+                    if (_path != null)
+                        _selectedUnit.ApproveMove(_path);
                 }
             }
         }
 
-        private void HideCursor()
+        private void TryFindPathForSelectedUnit()
         {
-            _cursor.gameObject.SetActive(false);
-            _targetPathNode = null;
+            bool unitSelectedAndStay = _selectedUnit && !_selectedUnit.IsOnAction;
+            bool unitHaveMoveCost = _selectedUnit && _selectedUnit.Stats.CurrentActionPoints.value >= Constants.STEP_COST;
+
+            if (
+                _targetPathNode
+                && !_targetPathNode.IsOcupied
+                && unitSelectedAndStay
+                && unitHaveMoveCost
+            )
+            {
+                if (TryFindPath())
+                {
+                    _pathDrawer.UpdatePathVisualization(_path);
+                }
+                else
+                {
+                    HidePath();
+                }
+            }
+            else
+            {
+                _path = null;
+                HidePath();
+            }
+        }
+
+        private bool TryFindPath()
+        {
+            _path = _pathFinder.FindPath(
+                _selectedUnit.CurrentPathNode,
+                _targetPathNode,
+                _selectedUnit.Stats.CurrentActionPoints.value,
+                _selectedUnit.transform.rotation.eulerAngles.y
+            );
+
+            return _path != null;
+        }
+
+        private void HidePath()
+        {
+            _pathDrawer.ClearPathVisualization();
+        }
+
+        private void CursorToggleActive()
+        {
+            _cursor.gameObject.SetActive(_targetPathNode);
         }
 
         private void SelectedUnit()
@@ -109,15 +174,9 @@ namespace _Workspace.Scripts.TacticalBattle
         private void HoverNode(PathNode pathNode)
         {
             _targetPathNode = pathNode;
-            _cursor.gameObject.SetActive(true);
             _cursor.position = _targetPathNode.GridPosition;
             if (_targetPathNode.IsOcupied)
             {
-                if (_selectedUnit != null)
-                {
-                    _selectedUnit.HidePath();
-                }
-
                 _hoveredUnit = _targetPathNode.UnitCurrent;
                 _hoveredUnit.HoverHighlight();
             }

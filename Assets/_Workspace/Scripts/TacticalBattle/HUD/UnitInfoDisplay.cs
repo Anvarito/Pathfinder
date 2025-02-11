@@ -39,16 +39,16 @@ namespace _Workspace.Scripts.TacticalBattle.HUD
         private void UnitSelect(Unit unit)
         {
             if (_selectedUnit != null)
-                _selectedUnit.ActionPoints.CurrentActionPoints.Changed -= UpdateActionPointsDisplay;
+                _selectedUnit.Stats.CurrentActionPoints.Changed -= UpdateActionPointsDisplay;
 
             _selectedUnit = unit;
-            _selectedUnit.ActionPoints.CurrentActionPoints.Changed += UpdateActionPointsDisplay;
-            UpdateActionPointsDisplay(_selectedUnit.ActionPoints.CurrentActionPoints.value);
+            _selectedUnit.Stats.CurrentActionPoints.Changed += UpdateActionPointsDisplay;
+            UpdateActionPointsDisplay(_selectedUnit.Stats.CurrentActionPoints.value);
         }
 
         private void UpdateActionPointsDisplay(float current)
         {
-            var maxActionPoints = _selectedUnit.ActionPoints.MaxActionPoints;
+            var maxActionPoints = _selectedUnit.Stats.MaxActionPoints;
             _actionPointsBar.SetValue(current, maxActionPoints);
         }
 

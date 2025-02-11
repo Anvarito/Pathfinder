@@ -1,3 +1,4 @@
+using _Workspace.Scripts.PlayerInput;
 using _Workspace.Scripts.TacticalBattle;
 using _Workspace.Scripts.TacticalBattle.HUD;
 using _Workspace.Scripts.TacticalBattle.PathFInding;
@@ -18,6 +19,7 @@ namespace _Workspace.Scripts.Infrastructure
             Container.Bind<MainButtonListener>().FromInstance(_mainButtonListener).AsSingle();
             Container.Bind<GridManager>().FromInstance(_gridManager).AsSingle().NonLazy();
             Container.BindInterfacesTo<AstarPathFinder>().AsSingle();
+            Container.BindInterfacesTo<InputService>().AsSingle();
         }
     }
 }
