@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using _Workspace.Scripts.Data.Scripts;
 using Extra;
 using UnityEngine;
-using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
 {
@@ -14,39 +13,25 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private UnitRotator UnitRotator;
         [SerializeField] private float _staepForSeconds;
         public UnitHighlighter UnitHighlighter;
-
-        public PathNode CurrentPathNode => _currentNode;
-
+        public PathNode CurrentPathNode { get; private set; }
+        public UnitStats Stats => _unitStats;
+        public bool IsOnAction { get; private set; }
+        
         private UnitStats _unitStats;
         private List<PathNode> _path;
         private MathOperations _mathOperations;
         private PathNode _targetNode;
-        private PathNode _currentNode;
 
         private int _nodeIndex = 1;
         private bool _isNeedMove;
 
-        public bool IsOnAction { get; private set; }
-        public UnitStats Stats => _unitStats;
-
         public event Action OnAllActionStop;
 
-        public Vector3Int PositionInt =>
-            new(
-                Mathf.RoundToInt(transform.position.x),
-                Mathf.RoundToInt(transform.position.y),
-                Mathf.RoundToInt(transform.position.z)
-            );
 
-        [Inject]
-        public void COnstruct(UnitMover mover)
-        {
-            print(mover);
-        }
         public void Init(PathNode initialNode, Vector3 direction,
             MathOperations mathOperations, UnitStats unitStats)
         {
-            _currentNode = initialNode;
+            CurrentPathNode = initialNode;
             _unitStats = unitStats;
             transform.position = initialNode.GridPosition;
             transform.rotation = Quaternion.Euler(direction);
@@ -126,10 +111,10 @@ namespace _Workspace.Scripts.TacticalBattle
 
             if (GetRotationCount() == 0)
             {
-                _currentNode.UnitCurrent = null;
+                CurrentPathNode.UnitCurrent = null;
                 _targetNode.UnitCurrent = this;
                 DecreaseMoveCost();
-                _currentNode = _targetNode;
+                CurrentPathNode = _targetNode;
                 unitMover.MoveNext(_targetNode);
             }
             else
@@ -140,7 +125,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private int GetRotationCount()
         {
-            int count = _mathOperations.CalculateRotationCount(transform.eulerAngles.y, _currentNode,
+            int count = _mathOperations.CalculateRotationCount(transform.eulerAngles.y, CurrentPathNode,
                 _targetNode);
             return count;
         }
@@ -175,7 +160,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void DecreaseMoveCost()
         {
-            var cost = _mathOperations.CalculateStepCost(_currentNode, _targetNode, Constants.STEP_COST);
+            var cost = _mathOperations.CalculateStepCost(CurrentPathNode, _targetNode, Constants.STEP_COST);
             _unitStats.DecreaseActionPoints(cost);
         }
 
@@ -189,7 +174,7 @@ namespace _Workspace.Scripts.TacticalBattle
         {
             UnitTransformSaveData transformSaveData = new UnitTransformSaveData()
             {
-                NodePosition = _currentNode.GridPosition,
+                NodePosition = CurrentPathNode.GridPosition,
                 RotationDir = transform.eulerAngles
             };
 
