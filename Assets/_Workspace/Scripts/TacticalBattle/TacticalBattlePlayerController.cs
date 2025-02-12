@@ -183,26 +183,43 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void HighlightUnit()
         {
-            
-            if (_targetPathNode.IsOcupied)
+            // Если на текущей ноде нет юнита, убираем выделение
+            if (!_targetPathNode.IsOcupied)
             {
-                _hoveredUnit = _targetPathNode.UnitCurrent;
-
-                if (_hoveredUnit != _prevHoveredUnit)
-                {
-                    _prevHoveredUnit?.UnitHighlighter.SetHighlight(false);
-                    _hoveredUnit.UnitHighlighter.SetHighlight(true);
-                    _prevHoveredUnit = _hoveredUnit;
-                }
-            }
-            else
-            {
+                // Если был наведён юнит, снимаем с него выделение
                 if (_hoveredUnit)
                     _hoveredUnit.UnitHighlighter.SetHighlight(false);
+        
+                // Обнуляем ссылки на текущий и предыдущий юнит
                 _hoveredUnit = null;
                 _prevHoveredUnit = null;
             }
-            
+            else
+            {
+                // Получаем текущего юнита на целевой ноде
+                _hoveredUnit = _targetPathNode.UnitCurrent;
+
+                // Если юнит не выбран, то выделяем его при наведении
+                if (_hoveredUnit != _selectedUnit)
+                {
+                    if (_hoveredUnit != _prevHoveredUnit)
+                    {
+                        // Снимаем выделение с предыдущего юнита, если он был
+                        _prevHoveredUnit?.UnitHighlighter.SetHighlight(false);
+                
+                        // Выделяем текущий юнит
+                        _hoveredUnit.UnitHighlighter.SetHighlight(true);
+                    }
+                }
+                else
+                {
+                    // Если юнит выбран, убираем выделение
+                    _hoveredUnit.UnitHighlighter.SetHighlight(false);
+                }
+
+                // Обновляем ссылку на предыдущий юнит
+                _prevHoveredUnit = _hoveredUnit;
+            }
         }
     }
 }

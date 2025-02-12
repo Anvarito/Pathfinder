@@ -12,7 +12,7 @@ namespace _Workspace.Scripts.TacticalBattle
         [SerializeField] private UnitMover unitMover;
         [SerializeField] private UnitRotator UnitRotator;
         [SerializeField] private float _staepForSeconds;
-        public UnitHighlighter UnitHighlighter;
+        public UnitHighlighter UnitHighlighter { get; private set; }
         public PathNode CurrentPathNode { get; private set; }
         public UnitStats Stats => _unitStats;
         public bool IsOnAction { get; private set; }
@@ -37,7 +37,7 @@ namespace _Workspace.Scripts.TacticalBattle
             transform.rotation = Quaternion.Euler(direction);
 
             _mathOperations = mathOperations;
-            UnitHighlighter = GetComponent<UnitHighlighter>();
+            UnitHighlighter = GetComponentInChildren<UnitHighlighter>();
             
             unitMover.OnStepEnded += MoveStepEnded;
             UnitRotator.OnStepEnded += RotationStepEnd;
@@ -54,6 +54,14 @@ namespace _Workspace.Scripts.TacticalBattle
             else
             {
                 MoveComplete();
+            }
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                print("Vision test");
             }
         }
 
@@ -185,6 +193,11 @@ namespace _Workspace.Scripts.TacticalBattle
             };
 
             return transformSaveData;
+        }
+
+        public void SetVisibilityTest(float visiblePortion)
+        {
+            print($"Unit {gameObject.name} {visiblePortion}");
         }
     }
 }
