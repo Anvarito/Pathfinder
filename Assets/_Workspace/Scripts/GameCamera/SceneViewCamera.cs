@@ -12,9 +12,7 @@ namespace _Workspace.Scripts.GameCamera
 
         [Header("Movement Settings")] [SerializeField]
         private float _cameraTopBorder = 1;
-
         [SerializeField] private float _cameraDownBorder = -1;
-
         [SerializeField] private float _oneFloorStep = 3;
 
         [SerializeField] private float moveSpeed = 5f;
@@ -35,7 +33,10 @@ namespace _Workspace.Scripts.GameCamera
         {
             _inputService = inputService;
             _floorSwitchHandler = floorSwitchHandler;
+        }
 
+        private void OnEnable()
+        {
             _inputService.OnRightMousePress += HandleRotation;
             _inputService.OnMiddleMousePress += HandlePanning;
             _inputService.OnWheelAxis += HandleZoom;
@@ -45,21 +46,21 @@ namespace _Workspace.Scripts.GameCamera
             _floorSwitchHandler.CurrentLevel.Changed += LevelChange;
         }
 
-        private void LevelChange(int newLevel)
-        {
-            _targetPivotLift = newLevel * 3;
-            _runPivotLift = true;
-        }
-
-        private void OnDestroy()
+        private void OnDisable()
         {
             _inputService.OnRightMousePress -= HandleRotation;
             _inputService.OnMiddleMousePress -= HandlePanning;
             _inputService.OnWheelAxis -= HandleZoom;
 
             _inputService.OnMovePress -= HorizontalMove;
+            _floorSwitchHandler.CurrentLevel.Changed -= LevelChange;
         }
 
+        private void LevelChange(int newLevel)
+        {
+            _targetPivotLift = newLevel * _oneFloorStep;
+            _runPivotLift = true;
+        }
 
         private void CameraDownMove()
         {
@@ -75,9 +76,9 @@ namespace _Workspace.Scripts.GameCamera
         {
             _targetCameraZoom = _camera.transform.localPosition;
             _runCameraZoom = true;
-            if (amount > 0)
+            if (amount < 0)
                 CameraUpMove();
-            else if (amount < 0)
+            else if (amount > 0)
                 CameraDownMove();
         }
 
