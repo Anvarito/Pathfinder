@@ -16,7 +16,8 @@ namespace _Workspace.Scripts.TacticalBattle
     {
         [SerializeField] private ETileMoveType _moveType;
         private MeshRenderer _meshRenderer;
-        public TextMeshProUGUI _Text;
+        public Transform _tileHelper;
+        public bool IsNeedHelper = false;
         public readonly string _slideParam = "_Slide";
 
         public Wall WallPrefab;
@@ -25,18 +26,11 @@ namespace _Workspace.Scripts.TacticalBattle
         private Dictionary<Wall.WallDirection, Wall> _walls = new Dictionary<Wall.WallDirection, Wall>();
         public Unit UnitCurrent { get; set; }
 
-        private void Awake()
+        public Vector3 GridPosition
         {
-            _meshRenderer = GetComponent<MeshRenderer>();
-            Material material = new Material(_meshRenderer.sharedMaterial);
-            _meshRenderer.sharedMaterial = material;
-        }
-
-        public Vector3Int GridPosition
-        {
-            get => new Vector3Int(
+            get => new Vector3(
                 Mathf.RoundToInt(transform.position.x),
-                Mathf.RoundToInt(transform.position.y),
+                transform.position.y,
                 Mathf.RoundToInt(transform.position.z)
             );
         }
@@ -48,11 +42,35 @@ namespace _Workspace.Scripts.TacticalBattle
         public float H { get; set; }
         public float F => G + H;
         public PathNode Parent { get; set; }
+        private void Awake()
+        {
+            _meshRenderer = GetComponent<MeshRenderer>();
+            Material material = new Material(_meshRenderer.sharedMaterial);
+            _meshRenderer.sharedMaterial = material;
+        }
+
 
 
         // Проверяем есть ли стена в указанном направлении
         public bool HasWall(Wall.WallDirection direction) => _walls.ContainsKey(direction);
 
+        public void Init()
+        {
+            if(!IsNeedHelper)
+                return;
+            var result = "";
+            foreach (char c in gameObject.name)
+            {
+                if (Char.IsDigit(c) || c == '-')
+                {
+                    result += c;
+                }
+            }
+            
+            
+            var hepler = Instantiate(_tileHelper, transform);
+            hepler.GetComponentInChildren<TextMeshProUGUI>().text = result;
+        }
 
         public void Reset()
         {

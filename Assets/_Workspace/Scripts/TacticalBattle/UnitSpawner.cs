@@ -5,6 +5,7 @@ using _Workspace.Scripts.SaveLoad;
 using _Workspace.Scripts.TacticalBattle.PathFInding;
 using Extra;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace _Workspace.Scripts.TacticalBattle
@@ -24,7 +25,7 @@ namespace _Workspace.Scripts.TacticalBattle
     {
         [SerializeField] private Unit _pathMoverPrefab;
         [SerializeField] private int _moverCount;
-        [SerializeField] private GridManager _gridManager;
+        [FormerlySerializedAs("_gridManager")] [SerializeField] private GraphMaster graphMaster;
         public List<Unit> Units { get; private set; } = new List<Unit>();
 
         private ISaveLoaderBattleUnits _saveLoaderBattleUnits;
@@ -41,10 +42,10 @@ namespace _Workspace.Scripts.TacticalBattle
 
         private void OnEnable()
         {
-            _gridManager.OnCreateGrid += GridManagerOnOnCreateGrid;
+            graphMaster.OnCreateGraph += GraphMasterOnOnCreateGraph;
         }
 
-        private void GridManagerOnOnCreateGrid()
+        private void GraphMasterOnOnCreateGraph()
         {
             for (int i = 0; i < _moverCount; i++)
             {
@@ -98,7 +99,7 @@ namespace _Workspace.Scripts.TacticalBattle
                 UnitStats unitStats = new UnitStats(data.UnitStatsSaveData);
                 var pos = data.UnitTransformSaveData.NodePosition;
                 var rot = data.UnitTransformSaveData.RotationDir;
-                var node = _gridManager.GetNodeBy(pos);
+                var node = graphMaster.GetNodeBy(pos);
                 unit.Init(node, rot, _mathOperations, unitStats);
                 node.UnitCurrent = unit;
                 unit.name = data.UnitName;
@@ -124,7 +125,7 @@ namespace _Workspace.Scripts.TacticalBattle
         private PathNode GetRandomNode()
         {
             System.Random random = new System.Random();
-            List<PathNode> values = new List<PathNode>(_gridManager.Grid.Values);
+            List<PathNode> values = new List<PathNode>(graphMaster.Grid.Values);
             PathNode node = null;
 
             while (node == null)

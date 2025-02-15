@@ -180,7 +180,7 @@ namespace _Workspace.Scripts.TacticalBattle
 
         public class UnitTransformSaveData
         {
-            public Vector3Int NodePosition;
+            public Vector3 NodePosition;
             public Vector3 RotationDir;
         }
 

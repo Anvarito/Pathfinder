@@ -5,9 +5,9 @@ namespace Extra
 {
     public class MathOperations
     {
-        public bool IsDiagonalDirection(Vector3Int from, Vector3Int to)
+        public bool IsDiagonalDirection(Vector3 from, Vector3 to)
         {
-            Vector3Int direction = to - from;
+            Vector3 direction = to - from;
             bool isDiagonal = Mathf.Abs(direction.x) == 1 && Mathf.Abs(direction.z) == 1;
             return isDiagonal;
         }

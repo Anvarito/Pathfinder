@@ -13,17 +13,17 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
     {
         private int maxIterations = 5000;
         private readonly MathOperations _mathOperations;
-        private readonly GridManager _gridManager;
+        private readonly GraphMaster _graphMaster;
 
-        private AstarPathFinder(MathOperations mathOperations, GridManager gridManager)
+        private AstarPathFinder(MathOperations mathOperations, GraphMaster graphMaster)
         {
             _mathOperations = mathOperations;
-            _gridManager = gridManager;
+            _graphMaster = graphMaster;
         }
 
         public List<PathNode> FindPath(PathNode startNode, PathNode targetNode, float actionPoints, float startRotation)
         {
-            _gridManager.ResetAllNodes();
+            _graphMaster.ResetAllNodes();
 
             var openList = new List<PathNode>();
             var closedList = new HashSet<PathNode>();
@@ -52,7 +52,7 @@ namespace _Workspace.Scripts.TacticalBattle.PathFInding
 
                 closedList.Add(currentNode);
 
-                var neighbors = _gridManager.GetNeighbors(currentNode);
+                var neighbors = _graphMaster.GetNeighbors(currentNode);
 
                 foreach (var neighbor in neighbors)
                 {
